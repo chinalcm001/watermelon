@@ -1,0 +1,29 @@
+# Docker Compose 文件版本
+version: '3.8'
+
+# 定义服务
+services:
+  # 服务的名称，可以自定义
+  watermelon-collector:
+    # 指定使用当前目录下的 Dockerfile 来构建镜像
+    build: .
+    # 给镜像起一个名字
+    image: watermelon-collector:latest
+    # 如果容器挂了，自动重启
+    restart: unless-stopped
+    # 端口映射
+    # 格式： <服务器上的端口>:<容器内的端口>
+    # 将服务器的 3000 端口映射到容器的 3000 端口
+    ports:
+      - "3000:3000"
+    # 数据卷挂载 (最重要的一步)
+    # 格式： <服务器上的路径>:<容器内的路径>
+    # 将服务器上名为 'watermelon_data' 的卷映射到容器的 /app/data 目录
+    volumes:
+      - watermelon_data:/app/data
+
+# 定义数据卷
+volumes:
+  # 定义一个名为 watermelon_data 的持久化数据卷
+  # Docker 会自动管理这个卷，确保数据安全
+  watermelon_data:

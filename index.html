@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>西瓜熟度数据采集工具</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>西瓜熟度数据采集与管理</h1>
+        <p>录制新的敲击声，或管理已有的数据记录。</p>
+
+        <div id="main-form">
+            <div class="recorder-section">
+                <h2 id="form-title">1. 录制新数据</h2>
+                <div class="controls">
+                    <button id="recordButton" class="button-record">开始录音</button>
+                    <button id="stopButton" disabled>停止录音</button>
+                </div>
+                <p id="status">请点击“开始录音”，然后敲击西瓜</p>
+                <div id="playbackSection" class="hidden">
+                    <h3>录音回放</h3>
+                    <audio id="audioPlayback" controls></audio>
+                </div>
+            </div>
+
+            <div id="annotationSection" class="annotation-section hidden">
+                <h2>2. 添加专家标注</h2>
+                <form id="annotationForm">
+                    <input type="hidden" id="editingBasename" name="editingBasename">
+                    <fieldset>
+                        <legend>声音描述 (可多选)</legend>
+                        <label><input type="checkbox" name="sound" value="crisp"> 清脆</label>
+                        <label><input type="checkbox" name="sound" value="dull"> 沉闷</label>
+                        <label><input type="checkbox" name="sound" value="hollow"> 空洞</label>
+                        <label><input type="checkbox" name="sound" value="solid"> 坚实</label>
+                        <label><input type="checkbox" name="sound" value="resonant"> 有回响</label>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>成熟度评分</legend>
+                        <div class="slider-container">
+                            <span>生</span>
+                            <input type="range" id="ripenessScore" name="ripenessScore" min="1" max="10" value="5">
+                            <span>熟</span>
+                        </div>
+                        <output id="scoreOutput">5</output>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>您的综合预测</legend>
+                        <select id="prediction" name="prediction">
+                            <option value="unripe">生瓜</option>
+                            <option value="perfect" selected>完美</option>
+                            <option value="overripe">过熟</option>
+                        </select>
+                    </fieldset>
+                    
+                    <fieldset>
+                        <legend>备注 (可选)</legend>
+                        <textarea id="notes" name="notes" rows="3" placeholder="例如：这个瓜的瓜皮很光滑，花纹清晰..."></textarea>
+                    </fieldset>
+
+                    <div class="divider"></div>
+
+                    <fieldset>
+                        <legend><strong>最终验证 (切开后填写)</strong></legend>
+                        <select id="groundTruth" name="groundTruth">
+                            <option value="not_verified" selected>尚未验证</option>
+                            <option value="unripe">生瓜</option>
+                            <option value="perfect">完美</option>
+                            <option value="overripe">过熟</option>
+                        </select>
+                    </fieldset>
+
+                    <div class="form-actions">
+                        <button type="submit" id="saveButton" class="button-save">保存数据</button>
+                        <button type="button" id="cancelEditButton" class="button-cancel hidden">取消编辑</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="data-list-section">
+            <h2>已采集的数据列表</h2>
+            <div id="dataListContainer"></div>
+        </div>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
