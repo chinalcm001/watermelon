@@ -1,4 +1,3 @@
-
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
@@ -110,7 +109,10 @@ app.post('/api/save-data', upload.single('audio'), (req, res) => {
         const finalAudioPath = path.join(DATA_DIR, audioFilename);
         const finalJsonPath = path.join(DATA_DIR, jsonFilename);
 
-        fs.renameSync(tempAudioPath, finalAudioPath);
+        // *** 关键修改：使用 copyFileSync 和 unlinkSync 替代 renameSync ***
+        fs.copyFileSync(tempAudioPath, finalAudioPath); // 复制文件
+        fs.unlinkSync(tempAudioPath); // 删除临时文件
+
         fs.writeFileSync(finalJsonPath, JSON.stringify(annotationData, null, 2));
 
         console.log(`Successfully saved: ${audioFilename} and ${jsonFilename}`);
