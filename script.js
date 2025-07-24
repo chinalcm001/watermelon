@@ -23,7 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Compatibility and Initialization ---
     function initialize() {
-        const MimeTypes = ['audio/mp4', 'audio/webm', 'audio/wav'];
+        // 优先尝试 WAV，然后是 MP4，最后是 WebM
+        const MimeTypes = ['audio/wav', 'audio/mp4', 'audio/webm'];
         selectedMimeType = MimeTypes.find(type => MediaRecorder.isTypeSupported(type));
 
         if (!selectedMimeType) {
@@ -137,9 +138,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Recording Logic ---
     recordButton.addEventListener('click', async () => {
-        // ... (recording logic is the same as before)
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream, { mimeType: selectedMimeType });
+
+            mediaRecorder.addEventListener('dataavailable', event => {
+                audioChunks.push(event.data);
+            });
+
+            mediaRecorder.addEventListener('stop', () => {
+                audioBlob = new Blob(audioChunks, { type: selectedMimeType });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                audioPlayback.src = audioUrl;
+
+                playbackSection.classList.remove('hidden');
+                annotationSection.classList.remove('hidden');
+                status.textContent = '录音完成。请试听并添加标注。';
+            });
+
+            recordButton.disabled = true;
+            stopButton.disabled = false;
+            status.textContent = '正在录音...';
+            audioChunks = [];
+
+            mediaRecorder.start();
+
+        } catch (err) {
+            console.error('Error accessing microphone:', err);
+            status.textContent = '错误：无法访问麦克风。请检查权限。';
+        }
     });
-    
 
     stopButton.addEventListener('click', () => {
         if (mediaRecorder && mediaRecorder.state === 'recording') {
@@ -188,7 +216,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // --- CREATE new record ---
                 const serverFormData = new FormData();
-                const audioFileName = selectedMimeType.startsWith('audio/wav') ? 'audio.wav' : 'audio.mp4';
+                // 根据实际使用的 MIME 类型设置文件名扩展
+                const audioFileExtension = selectedMimeType.split('/')[1]; // e.g., 'wav' or 'mp4'
+                const audioFileName = `audio.${audioFileExtension}`;
                 serverFormData.append('audio', audioBlob, audioFileName);
                 serverFormData.append('annotations', JSON.stringify(annotationData));
                 serverFormData.append('mimeType', selectedMimeType);
