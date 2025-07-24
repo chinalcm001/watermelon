@@ -1,3 +1,4 @@
+
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
@@ -30,9 +31,34 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // --- 中间件 ---
-app.use(express.static(__dirname));
+// 解析JSON和URL编码的请求体
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// --- 动态服务 index.html 以防止缓存 script.js ---
+app.get('/', (req, res) => {
+    fs.readFile(path.join(__dirname, 'index.html'), 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading index.html:', err);
+            return res.status(500).send('Error loading page.');
+        }
+        // 获取当前时间戳作为版本号
+        const timestamp = new Date().getTime();
+        // 替换 script.js 的引用，添加版本号
+        const modifiedHtml = data.replace('<script src="script.js"></script>', `<script src="script.js?v=${timestamp}"></script>`);
+        
+        // 设置 Cache-Control 头，防止 index.html 被缓存
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+
+        res.send(modifiedHtml);
+    });
+});
+
+// --- 静态文件服务 (除了 index.html) ---
+// 确保 style.css, script.js, 以及 data 目录下的音频文件等可以被访问
+app.use(express.static(__dirname));
 
 // --- API 路由 ---
 
