@@ -4,11 +4,11 @@ version: '3.8'
 # 定义服务
 services:
   # 服务的名称，可以自定义
-  watermelon-collector:
+  watermelon:
     # 指定使用当前目录下的 Dockerfile 来构建镜像
     build: .
     # 给镜像起一个名字
-    image: watermelon-collector:latest
+    image: watermelon:latest
     # 如果容器挂了，自动重启
     restart: unless-stopped
     # 端口映射
