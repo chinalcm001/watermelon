@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const recordButton = document.getElementById('recordButton');
     const stopButton = document.getElementById('stopButton');
+    const reRecordButton = document.getElementById('reRecordButton');
     const status = document.getElementById('status');
     const playbackSection = document.getElementById('playbackSection');
     const audioPlayback = document.getElementById('audioPlayback');
@@ -108,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         annotationSection.classList.remove('hidden');
         playbackSection.classList.add('hidden'); // Hide recorder playback
         recordButton.disabled = true; // Disable new recordings while editing
+        reRecordButton.classList.add('hidden'); // Hide re-record button
         cancelEditButton.classList.remove('hidden');
         saveButton.textContent = '更新标注';
         
@@ -154,10 +156,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 playbackSection.classList.remove('hidden');
                 annotationSection.classList.remove('hidden');
                 status.textContent = '录音完成。请试听并添加标注。';
+                recordButton.disabled = true; // 录音完成后禁用开始录音按钮
+                reRecordButton.classList.remove('hidden'); // 显示重新录音按钮
             });
 
             recordButton.disabled = true;
             stopButton.disabled = false;
+            reRecordButton.classList.add('hidden'); // 录音时隐藏重新录音按钮
             status.textContent = '正在录音...';
             audioChunks = [];
 
@@ -172,9 +177,12 @@ document.addEventListener('DOMContentLoaded', () => {
     stopButton.addEventListener('click', () => {
         if (mediaRecorder && mediaRecorder.state === 'recording') {
             mediaRecorder.stop();
-            recordButton.disabled = false;
             stopButton.disabled = true;
         }
+    });
+
+    reRecordButton.addEventListener('click', () => {
+        resetForm(true); // 重置表单和录音状态
     });
 
 
@@ -242,6 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`保存失败: ${error.message}`);
         } finally {
             saveButton.disabled = false;
+            saveButton.textContent = '保存数据';
         }
     });
     
@@ -252,7 +261,9 @@ document.addEventListener('DOMContentLoaded', () => {
         formTitle.textContent = '1. 录制新数据';
         saveButton.textContent = '保存数据';
         cancelEditButton.classList.add('hidden');
-        recordButton.disabled = false;
+        recordButton.disabled = false; // 确保开始录音按钮可用
+        stopButton.disabled = true; // 停止录音按钮禁用
+        reRecordButton.classList.add('hidden'); // 隐藏重新录音按钮
 
         if(hideForm) {
             playbackSection.classList.add('hidden');
